@@ -26,7 +26,7 @@ for i in range(n_splits):
     np.savetxt("index_train_{}.txt".format(i + 1), index_train, fmt = '%d')
     np.savetxt("index_test_{}.txt".format(i + 1), index_test, fmt = '%d')
 
-    print i
+    print(i)
 
 # We store the index to the features and to the target
 
