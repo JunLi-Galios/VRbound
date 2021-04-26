@@ -38,7 +38,7 @@ def get_test_error(X, y, i, dataset, alpha = 0.0):
     y_test = np.array(y_test, ndmin = 2).reshape((-1, 1))
 
     learning_rate = 0.001; v_prior = 1.0
-    print 'learning rate', learning_rate, 'v_prior', v_prior
+    print('learning rate', learning_rate, 'v_prior', v_prior)
 
     # We iterate the method 
 
@@ -46,7 +46,7 @@ def get_test_error(X, y, i, dataset, alpha = 0.0):
     epochs = 500
     K = 100
     hidden_layer_size = 100
-    print 'alpha =', alpha
+    print('alpha =', alpha)
     start_time = time.time()
     w, v_prior, get_error_and_ll = fit_q(X_train, y_train, hidden_layer_size, 
         batch_size, epochs, K, alpha, learning_rate, v_prior)
@@ -73,7 +73,7 @@ def main(dataset, alpha):
     n_splits = 50
     savepath = 'results/'
     for i in range(n_splits):
-        print 'split', i+1
+        print('split', i+1)
         neg_test_ll, test_error, running_time = get_test_error(X, y, i+1, dataset, alpha)
         with open(savepath + dataset + "_test_ll_alpha{}.txt".format(alpha), 'a') as f:
             f.write(repr(neg_test_ll) + '\n')
