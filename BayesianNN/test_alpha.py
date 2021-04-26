@@ -19,10 +19,12 @@ def get_test_error(X, y, i, dataset, alpha = 0.0):
     index_train = np.loadtxt(path + "index_train_{}.txt".format(i))
     index_test = np.loadtxt(path + "index_test_{}.txt".format(i))
     # load training and test data
-    X_train = X[ index_train.tolist(), ]
-    y_train = y[ index_train.tolist() ]
-    X_test = X[ index_test.tolist(), ]
-    y_test = y[ index_test.tolist() ]
+    index_train_int = [int(idx) for idx in index_train]
+    index_test_int = [int(idx) for idx in index_test]
+    X_train = X[ index_train_int, ]
+    y_train = y[ index_train_int ]
+    X_test = X[ index_test_int, ]
+    y_test = y[ index_test_int ]
 
     # We normalize the features
     std_X_train = np.std(X_train, 0)
@@ -67,8 +69,13 @@ def main(dataset, alpha):
     index_features = np.loadtxt(datapath + 'index_features.txt')
     index_target = np.loadtxt(datapath + 'index_target.txt')
 
-    X = data[ : , index_features.tolist() ]
-    y = data[ : , index_target.tolist() ]
+    index_features_int = [int(idx) for idx in index_features]
+    index_target_int = int(index_target) 
+
+    
+
+    X = data[ : , index_features_int ]
+    y = data[ : , index_target_int ]
 
     n_splits = 50
     savepath = 'results/'
