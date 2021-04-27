@@ -24,6 +24,9 @@ class WeightsParser(object):
 
     def get(self, vect, name):
         idxs, shape = self.idxs_and_shapes[name]
+#         print('idxs', idxs)
+#         print('shape', shape)
+#         print('vect[ idxs ]', vect[ idxs ].shape)
         return np.reshape(vect[ idxs ], shape)
 
     def get_indexes(self, vect, name):
@@ -46,9 +49,21 @@ def make_functions(d, shapes, alpha):
         # First layer
 
         K = samples_q.shape[ 0 ]
+#         print('shapes', list(shapes))
         (m, n) = shapes[ 0 ]
-        W = samples_q[ : , : m * n ].reshape(n * K, m).T
-        b = samples_q[ : , m * n : m * n + n ].reshape(1, n * K)
+#         print('m={},n={},k={}'.format(m,n,K))
+#         print('samples_q shape', samples_q.shape)
+#         print('-------------------after shape------------')
+#         samples_q[ : , : m * n ]
+#         print('samples_q shape', samples_q[ : , : m * n ].shape)
+#         print('-------------------after samples_q------------')
+#         samples_q[ : , : m * n ].reshape((n * K, m))
+#         print('-------------------after samples_q reshape------------')
+        W = samples_q[ : , : m * n ].reshape((n * K, m)).T
+#         print('-------------------after W------------')
+        b = samples_q[ : , m * n : m * n + n ].reshape((1, n * K))
+#         print('-------------------after b------------')
+
         a = np.dot(X, W) + b
         h = np.maximum(a, 0)
 
@@ -57,7 +72,7 @@ def make_functions(d, shapes, alpha):
         samples_q = samples_q[ : , m * n + n : ]
         (m, n) = shapes[ 1 ]
         b = samples_q[ : , m * n : m * n + n ].T
-        a = np.sum((samples_q[ : , : m * n ].reshape(1, -1) * h).reshape((K * X.shape[ 0 ], m)), 1).reshape((X.shape[ 0 ], K)) + b
+        a = np.sum((samples_q[ : , : m * n ].reshape((1, -1)) * h).reshape((K * X.shape[ 0 ], m)), 1).reshape((X.shape[ 0 ], K)) + b
 
         return a
 
@@ -125,7 +140,8 @@ def fit_q(X, y, hidden_layer_size, batch_size, epochs, K, alpha = 1.0, learning_
 
     hidden_layer_size = [ hidden_layer_size ]
     hidden_layer_size = np.array([ X.shape[ 1 ] ] + hidden_layer_size + [ 1 ])
-    shapes = zip(hidden_layer_size[ : -1 ], hidden_layer_size[ 1 : ])
+    shapes = [hidden_layer_size[ : -1 ], hidden_layer_size[ 1 : ]]
+#     print('shapes', shapes)
     w, energy, update_v_prior, get_error_and_ll = make_functions(X.shape[ 1 ], shapes, alpha)
     energy_grad = grad(energy)
 
@@ -152,11 +168,15 @@ def fit_q(X, y, hidden_layer_size, batch_size, epochs, K, alpha = 1.0, learning_
     t = 0
 
     for epoch in range(epochs):
-        permutation = np.random.choice(range(X.shape[ 0 ]), X.shape[ 0 ], replace = False)
+        
+        permutation = np.random.choice(X.shape[ 0 ], X.shape[ 0 ], replace = False)
+#         print('----------------permutation----------------', permutation)
         print_perf(epoch, w)
         for idxs in batch_idxs:
             t += 1
+#             print('---------before grad_w-----------')
             grad_w = energy_grad(w, X[ permutation[ idxs ] ], y[ permutation[ idxs ] ], v_prior, K, X.shape[ 0 ])
+#             print('---------before grad_w-----------')
             m1 = beta1 * m1 + (1 - beta1) * grad_w
             m2 = beta2 * m2 + (1 - beta2) * grad_w**2
             m1_hat = m1 / (1 - beta1**t)
